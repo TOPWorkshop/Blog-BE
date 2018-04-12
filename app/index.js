@@ -62,14 +62,14 @@ class BlogApp {
 
     this.app.use((error, request, response, next) => {
       response.status(500);
-      response.json(error);
+      response.json({ error });
     });
 
     console.log('Routes initialized');
   }
 
   async listen() {
-    await sync();
+    await sync({ alter: true });
     console.log('Database synced');
 
     await new Promise((resolve, reject) => {
