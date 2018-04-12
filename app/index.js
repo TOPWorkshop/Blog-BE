@@ -3,7 +3,10 @@ const http = require('http');
 const path = require('path');
 const morgan = require('morgan');
 const express = require('express');
+const passport = require('passport');
 const bodyParser = require('body-parser');
+
+const { sync } = require('./libraries/db');
 
 class BlogApp {
   constructor() {
@@ -30,6 +33,16 @@ class BlogApp {
     this.app.use(bodyParser.json()); // payload
     this.app.use(bodyParser.urlencoded({ extended: true })); // payload
 
+    this.app.use(passport.initialize());
+
+    passport.serializeUser((user, callback) => {
+      callback(null, user);
+    });
+
+    passport.deserializeUser((user, callback) => {
+      callback(null, user);
+    });
+
     console.log('Middlewares initialized');
   }
 
@@ -47,10 +60,18 @@ class BlogApp {
         this.app.use('/', controller.router);
       });
 
+    this.app.use((error, request, response, next) => {
+      response.status(500);
+      response.json(error);
+    });
+
     console.log('Routes initialized');
   }
 
   async listen() {
+    await sync();
+    console.log('Database synced');
+
     await new Promise((resolve, reject) => {
       this.server.listen(3000, (error) => {
         if (error) {

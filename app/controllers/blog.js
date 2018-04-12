@@ -1,3 +1,5 @@
+const passport = require('passport');
+
 const blog = require('../libraries/blog');
 
 const AbstractController = require('./index');
@@ -21,7 +23,10 @@ class BlogController extends AbstractController {
     // GET /posts
     // GET /posts/1
 
-    this.router.get('/posts', (request, response) => this.listPosts(request, response));
+    this.router.get('/posts',
+      passport.authenticate('jwt'),
+      (request, response) => this.listPosts(request, response));
+
     this.router.get('/posts/:postId', (request, response, next) => this.retrievePost(request, response, next));
   }
 
